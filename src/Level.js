@@ -297,19 +297,20 @@ export class Level {
     this.scene.add(fill);
 
     // Point lights in rooms
-    const roomLights = [
-      { pos: [2.5, 2.2, -2.5], color: 0xffeedd }, // living room
-      { pos: [-2.5, 2.2, 4], color: 0xffeedd },    // bedroom
-      { pos: [0, 2.2, 5.5], color: 0xffeedd },      // bathroom
-      { pos: [-3, 2.2, -2], color: 0xffeedd },      // kitchen
+    const roomLightConfigs = [
+      { pos: [2.5, 2.2, -2.5], color: 0xffeedd },
+      { pos: [-2.5, 2.2, 4], color: 0xffeedd },
+      { pos: [0, 2.2, 5.5], color: 0xffeedd },
+      { pos: [-3, 2.2, -2], color: 0xffeedd },
     ];
 
-    roomLights.forEach(r => {
+    const roomLightObjects = [];
+    roomLightConfigs.forEach(r => {
       const light = new THREE.PointLight(r.color, 0.3, 5);
       light.position.set(r.pos[0], r.pos[1], r.pos[2]);
       light.castShadow = false;
       this.scene.add(light);
-      // Light bulb visual
+      roomLightObjects.push(light);
       const bulb = new THREE.Mesh(
         new THREE.SphereGeometry(0.04, 8, 8),
         new THREE.MeshBasicMaterial({ color: 0xffffee })
@@ -318,7 +319,7 @@ export class Level {
       this.scene.add(bulb);
     });
 
-    this.objects.roomLights = roomLights;
+    this.objects.roomLights = roomLightObjects;
   }
 
   _createWindows() {
@@ -500,7 +501,8 @@ export class Level {
       const lights = this.objects.roomLights;
       if (lights && lights.length > 0) {
         const lampIndex = Math.floor(time / 5) % lights.length;
-        lights[lampIndex].position.x += Math.sin(time * 3) * delta * 0.3;
+        const light = lights[lampIndex];
+        light.position.x += Math.sin(time * 3) * delta * 0.3;
       }
     }
 
@@ -539,6 +541,17 @@ export class Level {
           w.rotation.z = Math.sin(time * 0.3 + i) * 0.02;
         }
       });
+    }
+
+    // Duplicate furniture
+    if (this.anomalyState.duplicateVisible) {
+      if (this.objects.duplicateFurniture) {
+        this.objects.duplicateFurniture.visible = true;
+      }
+    } else {
+      if (this.objects.duplicateFurniture) {
+        this.objects.duplicateFurniture.visible = false;
+      }
     }
 
     // Rain movement
