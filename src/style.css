@@ -1,0 +1,113 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; overflow: hidden; background: #000; color: #fff; }
+canvas { display: block; }
+
+#blocker {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+}
+#info { text-align: center; max-width: 500px; padding: 40px; }
+#info h1 { font-size: 52px; font-weight: 700; letter-spacing: 8px; margin-bottom: 8px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#info .subtitle { font-size: 14px; color: #888; letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase; }
+#info button {
+  display: block; width: 240px; margin: 10px auto; padding: 14px;
+  border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
+  color: #fff; font-size: 14px; letter-spacing: 3px; cursor: pointer;
+  transition: all 0.3s;
+}
+#info button:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+#info .hint { font-size: 11px; color: #555; margin-top: 30px; }
+
+#ui-overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+#hud { position: absolute; top: 16px; left: 16px; display: flex; gap: 20px; align-items: flex-start; }
+#night-display { font-size: 13px; letter-spacing: 3px; color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
+#flashlight-indicator { font-size: 12px; color: rgba(255,255,255,0.4); padding: 8px 12px; }
+#sprint-meter { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+#sprint-meter-fill { height: 100%; width: 100%; background: rgba(255,255,255,0.4); border-radius: 2px; transition: width 0.1s; }
+
+#interaction-hint {
+  position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+  font-size: 13px; color: rgba(255,255,255,0.5); text-align: center;
+  pointer-events: none; opacity: 0; transition: opacity 0.3s;
+}
+#interaction-hint.visible { opacity: 1; }
+
+#anomaly-prompt {
+  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+  text-align: center; pointer-events: auto; display: none;
+}
+#anomaly-prompt p { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 12px; letter-spacing: 2px; }
+#anomaly-prompt button {
+  margin: 0 8px; padding: 12px 28px; border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.6); color: #fff; font-size: 12px; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.3s; pointer-events: auto;
+}
+#anomaly-prompt button:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+#btn-found { border-color: rgba(100,200,100,0.3) !important; }
+#btn-found:hover { border-color: rgba(100,200,100,0.6) !important; }
+#btn-nothing { border-color: rgba(200,100,100,0.3) !important; }
+#btn-nothing:hover { border-color: rgba(200,100,100,0.6) !important; }
+
+#anomaly-feedback {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 24px; letter-spacing: 4px; text-align: center;
+  opacity: 0; transition: opacity 0.8s; pointer-events: none;
+}
+#anomaly-feedback.show { opacity: 1; }
+#anomaly-feedback.correct { color: #6ee76e; }
+#anomaly-feedback.incorrect { color: #e76e6e; }
+
+#pause-menu {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+}
+#pause-menu h2 { font-size: 36px; letter-spacing: 8px; margin-bottom: 40px; }
+#pause-menu button, #settings-panel button {
+  margin: 8px; padding: 12px 40px; border: 1px solid rgba(255,255,255,0.15);
+  background: transparent; color: #fff; font-size: 13px; letter-spacing: 3px; cursor: pointer; transition: 0.3s;
+}
+#pause-menu button:hover, #settings-panel button:hover { background: rgba(255,255,255,0.1); }
+
+#settings-panel {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+}
+#settings-panel h2 { font-size: 28px; letter-spacing: 6px; margin-bottom: 30px; }
+#settings-panel label { font-size: 13px; color: rgba(255,255,255,0.6); margin: 10px 0; letter-spacing: 1px; }
+#settings-panel input[type=range] { width: 200px; margin-left: 10px; }
+#settings-panel input[type=checkbox] { margin-left: 10px; }
+
+#night-transition {
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #000;
+}
+#night-text { font-size: 48px; letter-spacing: 10px; margin-bottom: 10px; }
+#night-subtext { font-size: 14px; color: #888; letter-spacing: 4px; }
+
+#ending-screen {
+  position: fixed; inset: 0; z-index: 90;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.9); backdrop-filter: blur(12px);
+  text-align: center; padding: 40px;
+}
+#ending-screen h2 { font-size: 42px; letter-spacing: 12px; margin-bottom: 20px; }
+#ending-screen p { font-size: 16px; color: #aaa; max-width: 500px; line-height: 1.8; margin-bottom: 30px; }
+#ending-screen button { padding: 14px 40px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #fff; font-size: 14px; letter-spacing: 3px; cursor: pointer; transition: 0.3s; }
+#ending-screen button:hover { background: rgba(255,255,255,0.1); }
+
+.crosshair {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.3); z-index: 11;
+  pointer-events: none;
+}
+.crosshair::before, .crosshair::after {
+  content: ''; position: absolute;
+  background: rgba(255,255,255,0.15);
+}
+.crosshair::before { width: 1px; height: 12px; left: 1.5px; top: -4px; }
+.crosshair::after { width: 12px; height: 1px; left: -4px; top: 1.5px; }
