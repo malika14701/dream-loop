@@ -8,31 +8,22 @@ canvas { display: block; }
   background: rgba(0,0,0,0.85);
   backdrop-filter: blur(8px);
 }
-#info { text-align: center; max-width: 500px; padding: 40px; }
-#info h1 { font-size: 52px; font-weight: 700; letter-spacing: 8px; margin-bottom: 8px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-#info .subtitle { font-size: 14px; color: #888; letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase; }
-#info button {
+#menu { text-align: center; max-width: 500px; padding: 40px; }
+#menu h1 { font-size: 52px; font-weight: 700; letter-spacing: 8px; margin-bottom: 8px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#menu .subtitle { font-size: 14px; color: #888; letter-spacing: 4px; margin-bottom: 40px; text-transform: uppercase; }
+.menu-btn {
   display: block; width: 240px; margin: 10px auto; padding: 14px;
   border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
   color: #fff; font-size: 14px; letter-spacing: 3px; cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s; font-family: inherit;
 }
-#info button:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
-#info .hint { font-size: 11px; color: #555; margin-top: 30px; }
+.menu-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+#menu .hint { font-size: 11px; color: #555; margin-top: 30px; }
 
 #ui-overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 #hud { position: absolute; top: 16px; left: 16px; display: flex; gap: 20px; align-items: flex-start; }
 #night-display { font-size: 13px; letter-spacing: 3px; color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
 #flashlight-indicator { font-size: 12px; color: rgba(255,255,255,0.4); padding: 8px 12px; }
-#sprint-meter { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; }
-#sprint-meter-fill { height: 100%; width: 100%; background: rgba(255,255,255,0.4); border-radius: 2px; transition: width 0.1s; }
-
-#interaction-hint {
-  position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
-  font-size: 13px; color: rgba(255,255,255,0.5); text-align: center;
-  pointer-events: none; opacity: 0; transition: opacity 0.3s;
-}
-#interaction-hint.visible { opacity: 1; }
 
 #anomaly-prompt {
   position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
@@ -42,7 +33,7 @@ canvas { display: block; }
 #anomaly-prompt button {
   margin: 0 8px; padding: 12px 28px; border: 1px solid rgba(255,255,255,0.15);
   background: rgba(0,0,0,0.6); color: #fff; font-size: 12px; letter-spacing: 2px;
-  cursor: pointer; transition: all 0.3s; pointer-events: auto;
+  cursor: pointer; transition: all 0.3s; pointer-events: auto; font-family: inherit;
 }
 #anomaly-prompt button:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
 #btn-found { border-color: rgba(100,200,100,0.3) !important; }
@@ -65,15 +56,16 @@ canvas { display: block; }
   background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
 }
 #pause-menu h2 { font-size: 36px; letter-spacing: 8px; margin-bottom: 40px; }
-#pause-menu button, #settings-panel button {
+.pause-btn {
   margin: 8px; padding: 12px 40px; border: 1px solid rgba(255,255,255,0.15);
-  background: transparent; color: #fff; font-size: 13px; letter-spacing: 3px; cursor: pointer; transition: 0.3s;
+  background: transparent; color: #fff; font-size: 13px; letter-spacing: 3px;
+  cursor: pointer; transition: 0.3s; font-family: inherit;
 }
-#pause-menu button:hover, #settings-panel button:hover { background: rgba(255,255,255,0.1); }
+.pause-btn:hover { background: rgba(255,255,255,0.1); }
 
 #settings-panel {
   position: fixed; inset: 0; z-index: 60;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
 }
 #settings-panel h2 { font-size: 28px; letter-spacing: 6px; margin-bottom: 30px; }
@@ -97,7 +89,7 @@ canvas { display: block; }
 }
 #ending-screen h2 { font-size: 42px; letter-spacing: 12px; margin-bottom: 20px; }
 #ending-screen p { font-size: 16px; color: #aaa; max-width: 500px; line-height: 1.8; margin-bottom: 30px; }
-#ending-screen button { padding: 14px 40px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #fff; font-size: 14px; letter-spacing: 3px; cursor: pointer; transition: 0.3s; }
+#ending-screen button { padding: 14px 40px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #fff; font-size: 14px; letter-spacing: 3px; cursor: pointer; transition: 0.3s; font-family: inherit; }
 #ending-screen button:hover { background: rgba(255,255,255,0.1); }
 
 .crosshair {
