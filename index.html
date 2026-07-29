@@ -9,19 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div id="blocker">
-    <div id="info">
-      <h1>Dream Loop</h1>
-      <p class="subtitle">A Psychological Horror Experience</p>
-      <button id="startBtn">BEGIN</button>
-      <button id="settingsBtn">SETTINGS</button>
-      <p class="hint">WASD to move. Mouse to look. Shift to sprint. F to toggle flashlight.</p>
-    </div>
-  </div>
+  <div id="blocker"></div>
   <div id="ui-overlay" style="display:none">
     <div id="hud">
       <div id="night-display">NIGHT 1</div>
-      <div id="flashlight-indicator">🔦 ON</div>
+      <div id="flashlight-indicator">FLASHLIGHT ON</div>
     </div>
     <div id="anomaly-prompt">
       <p>Have you found an anomaly?</p>
@@ -32,16 +24,16 @@
   </div>
   <div id="pause-menu" style="display:none">
     <h2>PAUSED</h2>
-    <button id="resumeBtn">RESUME</button>
-    <button id="pauseSettingsBtn">SETTINGS</button>
-    <button id="quitBtn">QUIT</button>
+    <button class="pause-btn" id="resumeBtn">RESUME</button>
+    <button class="pause-btn" id="pauseSettingsBtn">SETTINGS</button>
+    <button class="pause-btn" id="quitBtn">QUIT</button>
   </div>
   <div id="settings-panel" style="display:none">
     <h2>SETTINGS</h2>
     <label>Mouse Sensitivity: <input type="range" id="sensitivity" min="0.1" max="2" step="0.1" value="1" /></label>
     <label>Volume: <input type="range" id="volume" min="0" max="1" step="0.1" value="0.7" /></label>
     <label>Bloom: <input type="checkbox" id="bloom-toggle" checked /></label>
-    <button id="settingsBackBtn">BACK</button>
+    <button class="pause-btn" id="settingsBackBtn">BACK</button>
   </div>
   <div id="night-transition" style="display:none">
     <div id="night-text">NIGHT 1</div>
