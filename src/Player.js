@@ -19,7 +19,7 @@ export class Player {
     this._tryPos = new THREE.Vector3();
 
     this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
-    this.camera.rotation.setFromEuler(this.euler);
+    this.camera.rotation.copy(this.euler);
     this.sensitivity = 1;
 
     this.height = 1.6;
