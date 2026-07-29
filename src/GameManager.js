@@ -8,30 +8,58 @@ import { SaveSystem } from './SaveSystem.js';
 
 export class GameManager {
   constructor() {
-    try {
-      this.state = 'menu';
-      this.night = 1;
-      this.maxNights = 30;
-      this.time = 0;
-      this.anomalyIntensity = 0;
-      this.anomalyPrompted = false;
-      this.foundCorrect = false;
-      this.transitionTimer = 0;
-      this.clock = new THREE.Clock();
-      this.initialized = false;
+    this.state = 'menu';
+    this.night = 1;
+    this.maxNights = 30;
+    this.time = 0;
+    this.anomalyIntensity = 0;
+    this.anomalyPrompted = false;
+    this.foundCorrect = false;
+    this.transitionTimer = 0;
+    this.clock = new THREE.Clock();
+    this.initialized = false;
 
+    this._status('Initializing...');
+    setTimeout(() => this._init(), 100);
+  }
+
+  _status(msg) {
+    const el = document.getElementById('blocker');
+    if (el) el.innerHTML = `<h1>Dream Loop</h1><p style="color:#888;font-size:14px;letter-spacing:2px">${msg}</p>`;
+  }
+
+  _init() {
+    try {
+      this._status('Starting 3D engine...');
       this._initThree();
+      this._status('Building world...');
       this._initSystems();
+      this._status('Setting up controls...');
       this._setupUI();
+      this._status('Checking save...');
       this._loadGame();
       this.initialized = true;
+      this._status('Ready');
       this._animate();
       console.log('Dream Loop initialized successfully');
+      document.getElementById('blocker').innerHTML = this._menuHTML();
     } catch (e) {
       console.error('Failed to initialize Dream Loop:', e);
       document.getElementById('blocker').innerHTML =
-        '<h1 style="color:#e74c3c">Failed to load</h1><p>' + e.message + '</p>';
+        '<h1 style="color:#e74c3c">Failed to load</h1>' +
+        '<p style="color:#e74c3c;font-size:14px">' + (e.message || String(e)) + '</p>' +
+        '<p style="color:#666;font-size:12px;margin-top:20px">Check browser console for details (F12)</p>';
     }
+  }
+
+  _menuHTML() {
+    return '<div id="info">' +
+      '<h1>Dream Loop</h1>' +
+      '<p class="subtitle">A Psychological Horror Experience</p>' +
+      '<button id="startBtn">BEGIN</button>' +
+      '<button id="settingsBtn">SETTINGS</button>' +
+      '<p class="hint">WASD to move. Mouse to look. Shift to sprint. F to toggle flashlight.</p>' +
+    '</div>';
   }
 
   _initThree() {
@@ -83,23 +111,34 @@ export class GameManager {
 
   _setupUI() {
     const $ = id => document.getElementById(id);
-    $('startBtn').addEventListener('click', () => {
+
+    const bind = (id, fn) => {
+      const el = $(id);
+      if (el) el.addEventListener('click', fn);
+      else console.warn('UI element not found:', id);
+    };
+
+    bind('startBtn', () => {
       if (this.state === 'menu') {
         this.audio.resume();
         this._startNight(this.night);
       }
     });
-    $('settingsBtn').addEventListener('click', () => this._showSettings(true));
-    $('pauseSettingsBtn').addEventListener('click', () => this._showSettings(true));
-    $('settingsBackBtn').addEventListener('click', () => this._showSettings(false));
-    $('resumeBtn').addEventListener('click', () => this._togglePause());
-    $('quitBtn').addEventListener('click', () => this._quitToMenu());
-    $('btn-found').addEventListener('click', () => this._submitAnomaly(true));
-    $('btn-nothing').addEventListener('click', () => this._submitAnomaly(false));
-    $('sensitivity').addEventListener('input', e => this.player.setSensitivity(parseFloat(e.target.value)));
-    $('volume').addEventListener('input', e => this.audio.setVolume(parseFloat(e.target.value)));
-    $('bloom-toggle').addEventListener('change', e => this.postProcessing?.setBloom(e.target.checked));
-    $('ending-restart').addEventListener('click', () => this._resetGame());
+    bind('settingsBtn', () => this._showSettings(true));
+    bind('pauseSettingsBtn', () => this._showSettings(true));
+    bind('settingsBackBtn', () => this._showSettings(false));
+    bind('resumeBtn', () => this._togglePause());
+    bind('quitBtn', () => this._quitToMenu());
+    bind('btn-found', () => this._submitAnomaly(true));
+    bind('btn-nothing', () => this._submitAnomaly(false));
+    bind('ending-restart', () => this._resetGame());
+
+    const sens = $('sensitivity');
+    if (sens) sens.addEventListener('input', e => this.player?.setSensitivity(parseFloat(e.target.value)));
+    const vol = $('volume');
+    if (vol) vol.addEventListener('input', e => this.audio?.setVolume(parseFloat(e.target.value)));
+    const bloom = $('bloom-toggle');
+    if (bloom) bloom.addEventListener('change', e => this.postProcessing?.setBloom(e.target.checked));
 
     document.addEventListener('keydown', e => {
       if (e.code === 'Escape') {
