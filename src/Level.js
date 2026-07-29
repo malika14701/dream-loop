@@ -215,20 +215,20 @@ export class Level {
   }
 
   _createLighting() {
-    const ambient = new THREE.AmbientLight(0x222244, 0.4);
+    const ambient = new THREE.AmbientLight(0x8899aa, 1.2);
     this.scene.add(ambient);
     this.objects.ambientLight = ambient;
 
-    const mainLight = new THREE.DirectionalLight(0xffeedd, 0.6);
-    mainLight.position.set(0, 3, 0);
+    const mainLight = new THREE.DirectionalLight(0xffeedd, 0.8);
+    mainLight.position.set(0, 5, 2);
     mainLight.castShadow = true;
     mainLight.shadow.mapSize.width = 1024;
     mainLight.shadow.mapSize.height = 1024;
     this.scene.add(mainLight);
     this.objects.mainLight = mainLight;
 
-    const fill = new THREE.DirectionalLight(0x8888ff, 0.2);
-    fill.position.set(-2, 1, -3);
+    const fill = new THREE.DirectionalLight(0xaaaaff, 0.5);
+    fill.position.set(-2, 3, -5);
     this.scene.add(fill);
 
     const roomLightConfigs = [
@@ -241,11 +241,11 @@ export class Level {
     const roomLightObjects = [];
     const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffffee });
     roomLightConfigs.forEach(r => {
-      const light = new THREE.PointLight(r.color, 0.3, 5);
+      const light = new THREE.PointLight(r.color, 0.8, 10);
       light.position.set(r.pos[0], r.pos[1], r.pos[2]);
       this.scene.add(light);
       roomLightObjects.push(light);
-      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), bulbMat);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), bulbMat);
       bulb.position.copy(light.position);
       this.scene.add(bulb);
     });
