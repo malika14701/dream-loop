@@ -20,7 +20,17 @@ export class GameManager {
     this._promptTimeout = null;
 
     this._showStatus('Loading...');
-    setTimeout(() => this._init(), 100);
+    setTimeout(() => {
+      try { this._init(); }
+      catch (e) {
+        console.error('CRITICAL INIT ERROR:', e);
+        document.getElementById('blocker').innerHTML =
+          '<h1 style="color:red;font-size:36px">Init Error</h1>' +
+          '<pre style="color:#ff6;font-size:13px;margin-top:10px;text-align:left;max-width:600px;overflow:auto">' +
+          (e && e.stack ? e.stack.replace(/</g,'&lt;') : (e ? e.message || String(e) : 'Unknown error')) +
+          '</pre>';
+      }
+    }, 100);
   }
 
   _showStatus(msg) {
