@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html><body>
+<pre id="log"></pre>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+const log = document.getElementById('log');
+log.textContent += 'Test started\n';
+try {
+  const THREE = await import('three');
+  log.textContent += 'Three.js v' + THREE.REVISION + ' loaded\n';
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  log.textContent += 'WebGLRenderer created OK\n';
+  log.textContent += 'Context: ' + (renderer.getContext() ? 'OK' : 'FAIL') + '\n';
+  document.body.appendChild(renderer.domElement);
+  log.textContent += 'Canvas added to page\n';
+} catch (e) {
+  log.textContent += 'ERROR: ' + e.message + '\n' + e.stack + '\n';
+}
+</script>
+</body></html>
