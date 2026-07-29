@@ -15,16 +15,14 @@
       <p class="subtitle">A Psychological Horror Experience</p>
       <button id="startBtn">BEGIN</button>
       <button id="settingsBtn">SETTINGS</button>
-      <p class="hint">Click to begin. WASD to move. Mouse to look. Shift to sprint. E to interact. F to toggle flashlight.</p>
+      <p class="hint">WASD to move. Mouse to look. Shift to sprint. F to toggle flashlight.</p>
     </div>
   </div>
   <div id="ui-overlay" style="display:none">
     <div id="hud">
       <div id="night-display">NIGHT 1</div>
       <div id="flashlight-indicator">🔦 ON</div>
-      <div id="sprint-meter"></div>
     </div>
-    <div id="interaction-hint"></div>
     <div id="anomaly-prompt">
       <p>Have you found an anomaly?</p>
       <button id="btn-found">I FOUND AN ANOMALY</button>
@@ -54,14 +52,6 @@
     <p id="ending-text"></p>
     <button id="ending-restart">START AGAIN</button>
   </div>
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
-      }
-    }
-  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
