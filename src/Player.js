@@ -6,38 +6,42 @@ export class Player {
     this.scene = scene;
     this.audio = audioManager;
 
-    // Movement
     this.moveSpeed = 3.5;
     this.sprintMultiplier = 1.8;
     this.isSprinting = false;
     this.sprintStamina = 1;
-    this.maxStamina = 1;
     this.velocity = new THREE.Vector3();
     this.direction = new THREE.Vector3();
+    this._forward = new THREE.Vector3();
+    this._right = new THREE.Vector3();
+    this._moveVec = new THREE.Vector3();
+    this._newPos = new THREE.Vector3();
+    this._tryPos = new THREE.Vector3();
 
-    // Rotation
     this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
     this.camera.rotation.setFromEuler(this.euler);
     this.sensitivity = 1;
 
-    // State
     this.height = 1.6;
-    this.isGrounded = true;
     this.walkTimer = 0;
     this.walkCycle = 0;
     this.bobAmount = 0.03;
     this.bobSpeed = 8;
     this.headBob = 0;
 
-    // Flashlight
     this.flashlight = this._createFlashlight();
     this.flashlightOn = true;
 
-    // Keys
     this.keys = { w: false, a: false, s: false, d: false, shift: false };
-    this._setupControls();
 
-    // Position
+    this._onKeyDown = (e) => this._handleKeyDown(e);
+    this._onKeyUp = (e) => this._handleKeyUp(e);
+    this._onMouseMove = (e) => this._handleMouseMove(e);
+
+    document.addEventListener('keydown', this._onKeyDown);
+    document.addEventListener('keyup', this._onKeyUp);
+    document.addEventListener('mousemove', this._onMouseMove);
+
     this.camera.position.set(0, this.height, 0);
   }
 
@@ -53,25 +57,24 @@ export class Player {
     this.camera.add(light);
     this.scene.add(light);
 
-    // Visual cone (subtle)
     const coneGeo = new THREE.ConeGeometry(1.5, 4, 16);
     const coneMat = new THREE.MeshBasicMaterial({
       color: 0xffeecc,
       transparent: true,
       opacity: 0.03,
       depthWrite: false,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
-    const cone = new THREE.Mesh(coneGeo, coneMat);
-    cone.rotation.x = Math.PI / 2;
-    cone.position.set(0, -0.3, -2.5);
-    this.camera.add(cone);
-    this._flashlightCone = cone;
+    this._flashlightCone = new THREE.Mesh(coneGeo, coneMat);
+    this._flashlightCone.rotation.x = Math.PI / 2;
+    this._flashlightCone.position.set(0, -0.3, -2.5);
+    this.camera.add(this._flashlightCone);
 
     return light;
   }
 
   toggleFlashlight() {
+    if (!this.flashlight) return;
     this.flashlightOn = !this.flashlightOn;
     this.flashlight.intensity = this.flashlightOn ? 1.5 : 0;
     if (this._flashlightCone) {
@@ -79,54 +82,39 @@ export class Player {
     }
   }
 
-  _setupControls() {
-    document.addEventListener('keydown', (e) => {
-      switch (e.code) {
-        case 'KeyW': this.keys.w = true; break;
-        case 'KeyA': this.keys.a = true; break;
-        case 'KeyS': this.keys.s = true; break;
-        case 'KeyD': this.keys.d = true; break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          this.keys.shift = true;
-          break;
-        case 'KeyF': this.toggleFlashlight(); break;
-        case 'Escape':
-          // Handled by GameManager
-          break;
-      }
-    });
-
-    document.addEventListener('keyup', (e) => {
-      switch (e.code) {
-        case 'KeyW': this.keys.w = false; break;
-        case 'KeyA': this.keys.a = false; break;
-        case 'KeyS': this.keys.s = false; break;
-        case 'KeyD': this.keys.d = false; break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          this.keys.shift = false;
-          break;
-      }
-    });
-
-    // Mouse look
-    document.addEventListener('mousemove', (e) => {
-      if (document.pointerLockElement === null) return;
-      this.euler.setFromQuaternion(this.camera.quaternion);
-      this.euler.y -= e.movementX * 0.002 * this.sensitivity;
-      this.euler.x -= e.movementY * 0.002 * this.sensitivity;
-      this.euler.x = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, this.euler.x));
-      this.camera.quaternion.setFromEuler(this.euler);
-    });
+  _handleKeyDown(e) {
+    switch (e.code) {
+      case 'KeyW': this.keys.w = true; break;
+      case 'KeyA': this.keys.a = true; break;
+      case 'KeyS': this.keys.s = true; break;
+      case 'KeyD': this.keys.d = true; break;
+      case 'ShiftLeft': case 'ShiftRight': this.keys.shift = true; break;
+      case 'KeyF': this.toggleFlashlight(); break;
+    }
   }
 
-  setSensitivity(val) {
-    this.sensitivity = val;
+  _handleKeyUp(e) {
+    switch (e.code) {
+      case 'KeyW': this.keys.w = false; break;
+      case 'KeyA': this.keys.a = false; break;
+      case 'KeyS': this.keys.s = false; break;
+      case 'KeyD': this.keys.d = false; break;
+      case 'ShiftLeft': case 'ShiftRight': this.keys.shift = false; break;
+    }
   }
+
+  _handleMouseMove(e) {
+    if (document.pointerLockElement === null) return;
+    this.euler.setFromQuaternion(this.camera.quaternion);
+    this.euler.y -= e.movementX * 0.002 * this.sensitivity;
+    this.euler.x -= e.movementY * 0.002 * this.sensitivity;
+    this.euler.x = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, this.euler.x));
+    this.camera.quaternion.setFromEuler(this.euler);
+  }
+
+  setSensitivity(val) { this.sensitivity = val; }
 
   update(delta, walls) {
-    // Sprint
     this.isSprinting = this.keys.shift && this.sprintStamina > 0;
     const speed = this.moveSpeed * (this.isSprinting ? this.sprintMultiplier : 1);
 
@@ -136,7 +124,6 @@ export class Player {
       this.sprintStamina = Math.min(1, this.sprintStamina + delta * 0.15);
     }
 
-    // Movement direction
     this.direction.set(0, 0, 0);
     if (this.keys.w) this.direction.z -= 1;
     if (this.keys.s) this.direction.z += 1;
@@ -145,61 +132,45 @@ export class Player {
 
     if (this.direction.lengthSq() > 0) {
       this.direction.normalize();
-      // Transform direction relative to camera
-      const forward = new THREE.Vector3(0, 0, -1);
-      forward.applyQuaternion(this.camera.quaternion);
-      forward.y = 0;
-      forward.normalize();
+      this._forward.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
+      this._forward.y = 0;
+      if (this._forward.lengthSq() > 0.001) this._forward.normalize();
+      this._right.set(1, 0, 0).applyQuaternion(this.camera.quaternion);
+      this._right.y = 0;
+      if (this._right.lengthSq() > 0.001) this._right.normalize();
 
-      const right = new THREE.Vector3(1, 0, 0);
-      right.applyQuaternion(this.camera.quaternion);
-      right.y = 0;
-      right.normalize();
+      this._moveVec.set(0, 0, 0)
+        .addScaledVector(this._forward, -this.direction.z)
+        .addScaledVector(this._right, this.direction.x);
 
-      const moveVec = new THREE.Vector3()
-        .addScaledVector(forward, -this.direction.z)
-        .addScaledVector(right, this.direction.x);
+      if (this._moveVec.lengthSq() > 0) {
+        this._moveVec.normalize();
+        const moveX = this._moveVec.x * speed * delta;
+        const moveZ = this._moveVec.z * speed * delta;
 
-      if (moveVec.lengthSq() > 0) {
-        moveVec.normalize();
-        const newPos = this.camera.position.clone().add(moveVec.multiplyScalar(speed * delta));
+        this._newPos.copy(this.camera.position);
+        this._newPos.x += moveX;
+        this._newPos.z += moveZ;
 
-        // Simple collision with walls
-        let blocked = false;
-        for (const wall of walls) {
-          if (this._checkCollision(newPos, wall)) {
-            blocked = true;
-            break;
-          }
-        }
-
-        if (!blocked) {
-          this.camera.position.copy(newPos);
+        if (!this._checkCollisionAny(this._newPos, walls)) {
+          this.camera.position.copy(this._newPos);
         } else {
-          // Try sliding along X and Z separately
-          const tryX = this.camera.position.clone();
-          tryX.x += moveVec.x * speed * delta;
-          let slideBlocked = false;
-          for (const wall of walls) {
-            if (this._checkCollision(tryX, wall)) { slideBlocked = true; break; }
+          this._tryPos.copy(this.camera.position);
+          this._tryPos.x += moveX;
+          if (!this._checkCollisionAny(this._tryPos, walls)) {
+            this.camera.position.x = this._tryPos.x;
           }
-          if (!slideBlocked) this.camera.position.x = tryX.x;
-
-          const tryZ = this.camera.position.clone();
-          tryZ.z += moveVec.z * speed * delta;
-          slideBlocked = false;
-          for (const wall of walls) {
-            if (this._checkCollision(tryZ, wall)) { slideBlocked = true; break; }
+          this._tryPos.copy(this.camera.position);
+          this._tryPos.z += moveZ;
+          if (!this._checkCollisionAny(this._tryPos, walls)) {
+            this.camera.position.z = this._tryPos.z;
           }
-          if (!slideBlocked) this.camera.position.z = tryZ.z;
         }
 
-        // Head bob
         this.walkTimer += delta * this.bobSpeed * (this.isSprinting ? 1.5 : 1);
         this.headBob = Math.sin(this.walkTimer) * this.bobAmount * (this.isSprinting ? 1.8 : 1);
         this.camera.position.y = this.height + this.headBob;
 
-        // Footsteps
         if (this.audio) {
           this.walkCycle += delta * (this.isSprinting ? 5 : 3.5);
           if (this.walkCycle > 1) {
@@ -209,50 +180,47 @@ export class Player {
         }
       }
     } else {
-      // Idle sway
       this.headBob *= 0.9;
       this.camera.position.y += (this.height - this.camera.position.y) * 0.1;
     }
 
-    // Flashlight bobbing
     if (this.flashlight) {
-      const bobOffset = this.headBob * 0.3;
-      this.flashlight.position.y = -0.1 + bobOffset;
+      this.flashlight.position.y = -0.1 + this.headBob * 0.3;
     }
 
-    // Update walking state for audio
     if (this.audio) {
       this.audio.isWalking = this.keys.w || this.keys.s || this.keys.a || this.keys.d;
       this.audio.isSprinting = this.isSprinting;
     }
   }
 
-  _checkCollision(pos, wall) {
+  _checkCollisionAny(pos, walls) {
+    for (let i = 0, len = walls.length; i < len; i++) {
+      if (this._aabbOverlap(pos, walls[i])) return true;
+    }
+    return false;
+  }
+
+  _aabbOverlap(pos, wall) {
     const margin = 0.3;
-    const minX = wall.position.x - wall.geometry.parameters.width / 2 - margin;
-    const maxX = wall.position.x + wall.geometry.parameters.width / 2 + margin;
-    const minZ = wall.position.z - wall.geometry.parameters.depth / 2 - margin;
-    const maxZ = wall.position.z + wall.geometry.parameters.depth / 2 + margin;
+    const halfW = (wall.geometry.parameters.width || 1) / 2;
+    const halfD = (wall.geometry.parameters.depth || 1) / 2;
+    const halfH = (wall.geometry.parameters.height || 2.5) / 2;
+
+    const minX = wall.position.x - halfW - margin;
+    const maxX = wall.position.x + halfW + margin;
+    const minZ = wall.position.z - halfD - margin;
+    const maxZ = wall.position.z + halfD + margin;
+    const minY = wall.position.y - halfH;
+    const maxY = wall.position.y + halfH;
 
     return (
       pos.x >= minX && pos.x <= maxX &&
       pos.z >= minZ && pos.z <= maxZ &&
-      pos.y >= wall.position.y - wall.geometry.parameters.height / 2 &&
-      pos.y <= wall.position.y + wall.geometry.parameters.height / 2
+      pos.y >= minY && pos.y <= maxY
     );
   }
 
-  get position() {
-    return this.camera.position;
-  }
-
-  get quaternion() {
-    return this.camera.quaternion;
-  }
-
-  get direction() {
-    const v = new THREE.Vector3(0, 0, -1);
-    v.applyQuaternion(this.camera.quaternion);
-    return v;
-  }
+  get position() { return this.camera.position; }
+  get quaternion() { return this.camera.quaternion; }
 }
